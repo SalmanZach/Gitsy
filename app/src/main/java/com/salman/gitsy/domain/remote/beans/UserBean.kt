@@ -19,11 +19,11 @@ data class UserBean(
     @SerializedName("events_url")
     var eventsUrl: String?,
     @SerializedName("followers")
-    var followers: Int?,
+    var followers: Long?,
     @SerializedName("followers_url")
     var followersUrl: String?,
     @SerializedName("following")
-    var following: Int?,
+    var following: Long?,
     @SerializedName("following_url")
     var followingUrl: String?,
     @SerializedName("gists_url")
@@ -35,7 +35,7 @@ data class UserBean(
     @SerializedName("html_url")
     var htmlUrl: String?,
     @SerializedName("id")
-    var id: Int?,
+    var id: Long?,
     @SerializedName("location")
     var location: String?,
     @SerializedName("login")
