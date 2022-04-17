@@ -7,7 +7,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.salman.gitsy.R
 import com.salman.gitsy.databinding.ItemUserListBinding
-import com.salman.gitsy.domain.remote.beans.UserBean
+import com.salman.gitsy.domain.database.entity.UserEntity
 import com.salman.gitsy.utility.ItemActionListener
 
 /**
@@ -15,11 +15,11 @@ import com.salman.gitsy.utility.ItemActionListener
  * Email - zach.salmansaifi@gmail.com
  */
 
-class SearchAdapter : ListAdapter<UserBean, SearchAdapter.ViewHolder>(CallBack()) {
+class SearchAdapter : ListAdapter<UserEntity, SearchAdapter.ViewHolder>(CallBack()) {
 
-    private var itemActionListener: ItemActionListener<UserBean>? = null
+    private var itemActionListener: ItemActionListener<UserEntity>? = null
 
-    fun setItemActionListener(itemActionListener: ItemActionListener<UserBean>?) {
+    fun setItemActionListener(itemActionListener: ItemActionListener<UserEntity>?) {
         this.itemActionListener = itemActionListener
     }
 
@@ -29,11 +29,11 @@ class SearchAdapter : ListAdapter<UserBean, SearchAdapter.ViewHolder>(CallBack()
     }
 
 
-    internal class CallBack : DiffUtil.ItemCallback<UserBean>() {
-        override fun areItemsTheSame(oldItem: UserBean, newItem: UserBean) =
-            oldItem.name == newItem.name && oldItem.id == newItem.id
+    internal class CallBack : DiffUtil.ItemCallback<UserEntity>() {
+        override fun areItemsTheSame(oldItem: UserEntity, newItem: UserEntity) =
+            oldItem.username == newItem.username && oldItem.userId == newItem.userId
 
-        override fun areContentsTheSame(oldItem: UserBean, newItem: UserBean) =
+        override fun areContentsTheSame(oldItem: UserEntity, newItem: UserEntity) =
             oldItem == newItem
 
     }
@@ -52,10 +52,10 @@ class SearchAdapter : ListAdapter<UserBean, SearchAdapter.ViewHolder>(CallBack()
 
     class ViewHolder(
         private val binding: ItemUserListBinding,
-        private val itemActionListener: ItemActionListener<UserBean>?
+        private val itemActionListener: ItemActionListener<UserEntity>?
     ) : RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(item: UserBean) {
+        fun bind(item: UserEntity) {
             binding.model = item
             itemActionListener?.let {
                 binding.clicker = it

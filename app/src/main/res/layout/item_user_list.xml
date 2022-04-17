@@ -7,7 +7,7 @@
 
         <variable
             name="model"
-            type="com.salman.gitsy.domain.remote.beans.UserBean" />
+            type="com.salman.gitsy.domain.database.entity.UserEntity" />
 
         <variable
             name="clicker"
@@ -19,6 +19,7 @@
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="@dimen/spacing_small"
         app:cardBackgroundColor="@color/white2"
+        android:onClick="@{(view)-> clicker.onItemClicked(view,model)}"
         app:cardCornerRadius="@dimen/spacing_small"
         app:cardUseCompatPadding="true">
 
@@ -47,7 +48,7 @@
                 android:ellipsize="end"
                 android:fontFamily="@font/varela_round"
                 android:maxLength="30"
-                android:text="@{model.login}"
+                android:text="@{model.username}"
                 android:textColor="@color/black"
                 android:textSize="18sp"
                 android:textStyle="bold"

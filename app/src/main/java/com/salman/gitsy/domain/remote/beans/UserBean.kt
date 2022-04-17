@@ -15,7 +15,7 @@ data class UserBean(
     @SerializedName("created_at")
     var createdAt: String?,
     @SerializedName("email")
-    var email: Any?,
+    var email: String?,
     @SerializedName("events_url")
     var eventsUrl: String?,
     @SerializedName("followers")
@@ -35,7 +35,7 @@ data class UserBean(
     @SerializedName("html_url")
     var htmlUrl: String?,
     @SerializedName("id")
-    var id: Long?,
+    var id: Long,
     @SerializedName("location")
     var location: String?,
     @SerializedName("login")

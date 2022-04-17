@@ -1,6 +1,7 @@
 package com.salman.gitsy.domain
 
 import android.app.Application
+import com.salman.gitsy.domain.database.GitsyDatabase
 import com.salman.gitsy.domain.remote.GitsyApis
 import com.salman.gitsy.domain.repo.GitsyRepository
 import com.salman.gitsy.domain.repo.GitsyRepositoryImp
@@ -24,9 +25,13 @@ class GitsyApp : Application(), KodeinAware {
         // app service
         bind<GitsyApis>() with singleton { com.salman.gitsy.domain.remote.ServiceClient() }
 
-        // app repository
+        // initializing database
+        bind() from singleton { GitsyDatabase(instance()) }
+        bind() from singleton { instance<GitsyDatabase>().userDao() }
+
+        // app repository initializing with userDao
         bind<GitsyRepository>() with singleton {
-            GitsyRepositoryImp(instance())
+            GitsyRepositoryImp(instance(), instance())
         }
 
         // app view model factory

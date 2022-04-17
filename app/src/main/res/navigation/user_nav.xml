@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/user_nav"
+    app:startDestination="@id/userListFragment">
+
+    <fragment
+        android:id="@+id/userListFragment"
+        android:name="com.salman.gitsy.view.search.listing.UserListFragment"
+        android:label="UserListFragment">
+        <action
+            android:id="@+id/action_userListFragment_to_userDetailsFragment"
+            app:destination="@id/userDetailsFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/userDetailsFragment"
+        android:name="com.salman.gitsy.view.search.details.UserDetailsFragment"
+        android:label="UserDetailsFragment">
+        <argument
+            android:name="username"
+            app:argType="string" />
+    </fragment>
+</navigation>
