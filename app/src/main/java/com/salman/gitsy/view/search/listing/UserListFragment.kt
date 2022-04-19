@@ -1,8 +1,6 @@
 package com.salman.gitsy.view.search.listing
 
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,10 +8,10 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
-import androidx.recyclerview.widget.RecyclerView
 import com.salman.gitsy.databinding.FragmentUserListBinding
 import com.salman.gitsy.domain.database.entity.UserEntity
 import com.salman.gitsy.domain.remote.Envelope
+import com.salman.gitsy.utility.DebouncingTextListener
 import com.salman.gitsy.utility.ItemActionListener
 import com.salman.gitsy.view.search.SearchAdapter
 import com.salman.gitsy.view.search.SearchViewModel
@@ -28,6 +26,13 @@ class UserListFragment : Fragment(), KodeinAware, ItemActionListener<UserEntity>
     private lateinit var mBinding: FragmentUserListBinding
     private val viewModel: SearchViewModel by activityViewModels { direct.instance() }
     private val userAdapter = SearchAdapter()
+    private val textWatcher = DebouncingTextListener {
+        if (!it.isNullOrEmpty()) {
+            viewModel.query(it.trim())
+        } else {
+            userAdapter.submitList(null)
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -39,67 +44,51 @@ class UserListFragment : Fragment(), KodeinAware, ItemActionListener<UserEntity>
             container,
             false
         )
-        mBinding.run {
-
-            userAdapter.apply {
-                users.adapter = this
-                setItemActionListener(this@UserListFragment)
-            }
-
-            userAdapter.registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver() {
-                override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
-                    if (positionStart == 0) {
-                        users.smoothScrollToPosition(0)
-                    }
-                }
-            })
-
-            searchInput.addTextChangedListener(object : TextWatcher {
-                override fun afterTextChanged(s: Editable?) {
-                    val newText = s.toString().trim()
-                    if (newText.isNotEmpty()) {
-                        viewModel.query(newText)
-                    } else {
-                        userAdapter.submitList(null)
-                    }
-                }
-
-                override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-                }
-
-                override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-
-                }
-            })
-
-            viewModel.users.observe(viewLifecycleOwner) {
-                when (it) {
-
-                    is Envelope.Loading -> {
-                        progress.visibility = View.VISIBLE
-                    }
-
-                    is Envelope.Error -> {
-                        progress.visibility = View.INVISIBLE
-                        Toast.makeText(requireContext(), it.message, Toast.LENGTH_SHORT).show()
-                    }
-
-                    is Envelope.Success -> {
-                        progress.visibility = View.INVISIBLE
-                        userAdapter.submitList(it.data)
-                    }
-                }
-            }
-
-
-        }
         return mBinding.root
     }
 
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        userAdapter.apply {
+            mBinding.users.adapter = this
+            setItemActionListener(this@UserListFragment)
+        }
+
+
+        viewModel.users.observe(viewLifecycleOwner) {
+            when (it) {
+                is Envelope.Loading -> {
+                    mBinding.progress.visibility = View.VISIBLE
+                }
+
+                is Envelope.Error -> {
+                    mBinding.progress.visibility = View.INVISIBLE
+                    Toast.makeText(requireContext(), it.message, Toast.LENGTH_SHORT).show()
+                }
+
+                is Envelope.Success -> {
+                    mBinding.progress.visibility = View.INVISIBLE
+                    userAdapter.submitList(it.data)
+                }
+            }
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        mBinding.searchInput.addTextChangedListener(textWatcher)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        mBinding.searchInput.removeTextChangedListener(textWatcher)
+
+    }
+
     override fun onItemClicked(view: View, model: UserEntity) {
         val direction =
-            UserListFragmentDirections.actionUserListFragmentToUserDetailsFragment(model.username)
+            UserListFragmentDirections.actionUserListFragmentToUserDetailsFragment(model.userName)
         findNavController().navigate(direction)
     }
 

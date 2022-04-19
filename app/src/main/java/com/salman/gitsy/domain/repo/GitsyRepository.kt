@@ -12,9 +12,12 @@ import kotlinx.coroutines.flow.Flow
 
 interface GitsyRepository {
 
-    fun getUserInfo(username: String): Flow<Envelope<UserEntity>>
 
     fun searchUser(query: String): Flow<Envelope<List<UserEntity>>>
 
+    fun getUserInfo(username: String): Flow<Envelope<UserEntity>>
+
+    // can be added as favourite
+    fun addToFavourite(username: String, isFavourite: Boolean)
 
 }

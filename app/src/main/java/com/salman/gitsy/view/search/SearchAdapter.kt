@@ -31,7 +31,7 @@ class SearchAdapter : ListAdapter<UserEntity, SearchAdapter.ViewHolder>(CallBack
 
     internal class CallBack : DiffUtil.ItemCallback<UserEntity>() {
         override fun areItemsTheSame(oldItem: UserEntity, newItem: UserEntity) =
-            oldItem.username == newItem.username && oldItem.userId == newItem.userId
+            oldItem.userName == newItem.userName && oldItem.userId == newItem.userId
 
         override fun areContentsTheSame(oldItem: UserEntity, newItem: UserEntity) =
             oldItem == newItem

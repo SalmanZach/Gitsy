@@ -9,7 +9,7 @@ data class UserEntity(
     @PrimaryKey(autoGenerate = false)
     var userId: Long,
     var name: String = "",
-    var username: String = "",
+    var userName: String = "",
     var avatarUrl: String = "",
     var bio: String = "",
     var company: String = "",

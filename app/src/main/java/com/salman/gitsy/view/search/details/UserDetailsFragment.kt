@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.salman.gitsy.databinding.FragmentUserDetailsBinding
 import com.salman.gitsy.domain.remote.Envelope
@@ -24,7 +25,7 @@ class UserDetailsFragment : Fragment(), KodeinAware {
 
     // getting username param from listing fragment
     private val args: UserDetailsFragmentArgs by navArgs()
-    private val username: String by lazy { args.username }
+    private val userName: String by lazy { args.username }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -36,14 +37,24 @@ class UserDetailsFragment : Fragment(), KodeinAware {
             container,
             false
         )
+        viewModel.loadUserInfoByUsername(userName)
+
+        return mBinding.root
+    }
+
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
         mBinding.run {
+
+            back.setOnClickListener { findNavController().navigateUp() }
 
             viewModel.user.observe(viewLifecycleOwner) {
                 when (it) {
                     is Envelope.Loading -> {
                         progress.visibility = View.VISIBLE
                     }
-
                     is Envelope.Error -> {
                         progress.visibility = View.GONE
                         Toast.makeText(requireContext(), it.message, Toast.LENGTH_SHORT).show()
@@ -51,14 +62,11 @@ class UserDetailsFragment : Fragment(), KodeinAware {
 
                     is Envelope.Success -> {
                         progress.visibility = View.GONE
+                        model = it.data
                     }
                 }
             }
 
-            viewModel.loadUserInfoByUsername(username)
-
         }
-        return mBinding.root
     }
-
 }

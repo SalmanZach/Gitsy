@@ -6,6 +6,9 @@ import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import com.salman.gitsy.R
 import com.salman.gitsy.databinding.ActivitySearchBinding
+import com.salman.gitsy.domain.remote.ConnectionManager
+import com.salman.gitsy.utility.hideWithTranslate
+import com.salman.gitsy.utility.showWithTranslate
 import org.kodein.di.KodeinAware
 import org.kodein.di.android.closestKodein
 import org.kodein.di.direct
@@ -24,5 +27,15 @@ class SearchActivity : AppCompatActivity(), KodeinAware {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_search)
 
+        ConnectionManager.getLiveConnection(this).observe(this) { isConnected ->
+            binding.networkStatus = isConnected
+            binding.networkContainer.apply {
+                if (isConnected) {
+                    hideWithTranslate()
+                } else {
+                    showWithTranslate()
+                }
+            }
+        }
     }
 }

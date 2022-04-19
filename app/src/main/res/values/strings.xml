@@ -2,4 +2,12 @@
     <string name="app_name">Gitsy</string>
     <string name="search_users_on_github">Search users on GitHub!</string>
     <string name="search_for_users">Search for a user</string>
+    <string name="followers">Followers</string>
+    <string name="followings">Followings</string>
+    <string name="gists">Gists</string>
+    <string name="repos">Repos</string>
+    <string name="backOnline">Back to online!</string>
+    <string name="noConnectivity">No Connection Available.</string>
+    <string name="openToWork">Open to work!</string>
+    <string name="closedToWork">Not open for offer</string>
 </resources>

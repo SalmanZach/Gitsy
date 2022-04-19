@@ -16,13 +16,13 @@ interface UserDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertUser(user: UserEntity)
 
-    @Query("SELECT * FROM users WHERE username LIKE '%' || :query || '%'")
+    @Query("SELECT * FROM users WHERE username LIKE :query||'%'")
     fun getUserByQuery(query: String): Flow<List<UserEntity>>
 
-    @Query("SELECT * FROM users WHERE username =:username")
+    @Query("SELECT * FROM users WHERE userName =:username")
     fun getUserByUsername(username: String): Flow<UserEntity>
 
-    @Query("DELETE FROM users WHERE username =:query")
-    suspend fun clearUsersByQuery(query: String)
+    @Query("DELETE FROM users")
+    suspend fun clearUsers()
 
 }

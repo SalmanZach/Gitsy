@@ -4,7 +4,12 @@ import com.salman.gitsy.domain.database.dao.UserDao
 import com.salman.gitsy.domain.database.entity.UserEntity
 import com.salman.gitsy.domain.remote.Envelope
 import com.salman.gitsy.domain.remote.GitsyApis
-import kotlinx.coroutines.flow.*
+import com.salman.gitsy.domain.remote.NetworkBoundResponse
+import com.salman.gitsy.domain.remote.beans.UserBean
+import com.salman.gitsy.domain.remote.beans.UsersResponse
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.distinctUntilChanged
+import retrofit2.Response
 
 /**
  * Created by Salman Saifi on 17/04/22.
@@ -15,20 +20,43 @@ class GitsyRepositoryImp(private val remote: GitsyApis, private val userDao: Use
     GitsyRepository {
 
 
-    override fun getUserInfo(username: String): Flow<Envelope<UserEntity>> {
-        return flow<Envelope<UserEntity>> {
-            emit(Envelope.loading())
-            // fetch user info from local database
-            emit(Envelope.success(userDao.getUserByUsername(username).first()))
+    override fun searchUser(query: String): Flow<Envelope<List<UserEntity>>> {
 
-            // fetching from server and save it to database
-            val apiResponse = remote.getUserInfo(username)
-            if (apiResponse.isSuccessful && apiResponse.body() != null) {
-                apiResponse.body()?.let {
+        return object : NetworkBoundResponse<List<UserEntity>, UsersResponse>() {
+
+            override suspend fun saveRemoteData(response: UsersResponse) {
+                val data = response.userBeans.orEmpty()
+                val users = mutableListOf<UserEntity>()
+                data.mapTo(users) {
+                    UserEntity(
+                        userId = it.id,
+                        userName = it.login.orEmpty(),
+                        avatarUrl = it.avatarUrl.orEmpty()
+                    )
+                }
+                userDao.insertUsers(users)
+            }
+
+            override fun fetchFromLocal(): Flow<List<UserEntity>> =
+                userDao.getUserByQuery(query).distinctUntilChanged()
+
+            override suspend fun fetchFromRemote(): Response<UsersResponse> =
+                remote.searchUser(query)
+        }.asFlow()
+
+    }
+
+
+    override fun getUserInfo(username: String): Flow<Envelope<UserEntity>> {
+
+        return object : NetworkBoundResponse<UserEntity, UserBean>() {
+
+            override suspend fun saveRemoteData(response: UserBean) {
+                response.let {
                     val user = UserEntity(
                         userId = it.id,
                         name = it.name.orEmpty(),
-                        username = it.login.orEmpty(),
+                        userName = it.login.orEmpty(),
                         avatarUrl = it.avatarUrl.orEmpty(),
                         bio = it.bio.orEmpty(),
                         company = it.company.orEmpty(),
@@ -43,48 +71,19 @@ class GitsyRepositoryImp(private val remote: GitsyApis, private val userDao: Use
                     )
                     userDao.insertUser(user)
                 }
-            } else {
-                emit(Envelope.error(apiResponse.message()))
             }
-            // retrieve latest list
-            emitAll(userDao.getUserByUsername(username).map { Envelope.success(it) })
-        }.catch { e ->
-            emit(Envelope.error(e.message.orEmpty()))
-            e.printStackTrace()
-        }
+
+            override fun fetchFromLocal(): Flow<UserEntity> =
+                userDao.getUserByUsername(username).distinctUntilChanged()
+
+            override suspend fun fetchFromRemote(): Response<UserBean> =
+                remote.getUserInfo(username)
+        }.asFlow()
     }
 
 
-    override fun searchUser(query: String): Flow<Envelope<List<UserEntity>>> {
-        return flow<Envelope<List<UserEntity>>> {
-            emit(Envelope.loading())
-            // fetch users from local database
-            emit(Envelope.success(userDao.getUserByQuery(query).first()))
-            // fetching from server and save it to database
-            val apiResponse = remote.searchUser(query)
-            if (apiResponse.isSuccessful && apiResponse.body() != null) {
-                // clear previous query data
-                userDao.clearUsersByQuery(query)
-
-                val response = apiResponse.body()?.userBeans.orEmpty()
-                val users = mutableListOf<UserEntity>()
-                response.mapTo(users) {
-                    UserEntity(
-                        userId = it.id,
-                        username = it.login.orEmpty(),
-                        avatarUrl = it.avatarUrl.orEmpty()
-                    )
-                }
-                userDao.insertUsers(users)
-            } else {
-                emit(Envelope.error(apiResponse.message()))
-            }
-            // retrieve latest list
-            emitAll(userDao.getUserByQuery(query).map { Envelope.success(it) })
-        }.catch { e ->
-            emit(Envelope.error(e.message.orEmpty()))
-            e.printStackTrace()
-        }
+    override fun addToFavourite(username: String, isFavourite: Boolean) {
+        TODO("Can be added as favourite for a user by username")
     }
 
 

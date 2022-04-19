@@ -1,10 +1,11 @@
 package com.salman.gitsy.domain.remote
 
+import com.salman.gitsy.BuildConfig
 import com.salman.gitsy.utility.Constants.BASE_URL
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
+import okhttp3.Request
 import okhttp3.logging.HttpLoggingInterceptor
-import org.kodein.di.android.BuildConfig
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
@@ -24,11 +25,13 @@ object ServiceClient {
                 HttpLoggingInterceptor.Level.NONE
         }
 
+
         val headerInterceptorChain = Interceptor { chain ->
             val original = chain.request()
-            val request = original.newBuilder()
+            val request = original.newBuilder().getHeader()
                 .method(original.method, original.body)
                 .build()
+
             chain.proceed(request)
         }
 
@@ -45,6 +48,12 @@ object ServiceClient {
             .baseUrl(BASE_URL)
             .addConverterFactory(GsonConverterFactory.create())
             .build().create(GitsyApis::class.java)
+    }
+
+    private fun Request.Builder.getHeader(): Request.Builder {
+        header("Authorization", "e3de16779a65d135a0bf3ea630bf11dc5207fde1")
+        header("Content-Type", "application/json")
+        return this
     }
 
 }

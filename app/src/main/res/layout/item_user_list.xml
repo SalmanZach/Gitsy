@@ -48,7 +48,7 @@
                 android:ellipsize="end"
                 android:fontFamily="@font/varela_round"
                 android:maxLength="30"
-                android:text="@{model.username}"
+                android:text="@{model.userName}"
                 android:textColor="@color/black"
                 android:textSize="18sp"
                 android:textStyle="bold"
