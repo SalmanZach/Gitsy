@@ -34,6 +34,7 @@ class GitsyRepositoryImp(private val remote: GitsyApis, private val userDao: Use
                         avatarUrl = it.avatarUrl.orEmpty()
                     )
                 }
+                userDao.clearUsers()
                 userDao.insertUsers(users)
             }
 
