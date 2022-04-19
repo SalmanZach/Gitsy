@@ -21,7 +21,7 @@ import kotlin.math.pow
  * Contact at zach.salmansaifi@gmail.com.
  */
 
-fun Context.formattedTime(date: String): String {
+fun Context.formattedTime(date: String?): String {
     return try {
         val formatter = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.ENGLISH).also {
             it.timeZone = TimeZone.getTimeZone("GMT")

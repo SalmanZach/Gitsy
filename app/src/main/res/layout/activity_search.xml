@@ -33,6 +33,7 @@
             android:layout_height="35dp"
             android:background="@{networkStatus?@color/green:@color/red}"
             android:gravity="center_vertical"
+            android:visibility="gone"
             android:orientation="horizontal"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"

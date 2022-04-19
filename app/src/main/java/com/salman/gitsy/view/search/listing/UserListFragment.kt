@@ -8,6 +8,7 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
+import com.salman.gitsy.R
 import com.salman.gitsy.databinding.FragmentUserListBinding
 import com.salman.gitsy.domain.database.entity.UserEntity
 import com.salman.gitsy.domain.remote.Envelope
@@ -26,11 +27,20 @@ class UserListFragment : Fragment(), KodeinAware, ItemActionListener<UserEntity>
     private lateinit var mBinding: FragmentUserListBinding
     private val viewModel: SearchViewModel by activityViewModels { direct.instance() }
     private val userAdapter = SearchAdapter()
+
+    /**
+     * A debounce text watcher to delay input for 300 millisecond
+     * so that user experience would be smooth.
+     */
+
     private val textWatcher = DebouncingTextListener {
         if (!it.isNullOrEmpty()) {
             viewModel.query(it.trim())
         } else {
             userAdapter.submitList(null)
+            mBinding.message.visibility = View.VISIBLE
+            mBinding.message.text =
+                requireContext().resources.getString(R.string.search_users_on_github)
         }
     }
 
@@ -60,16 +70,26 @@ class UserListFragment : Fragment(), KodeinAware, ItemActionListener<UserEntity>
             when (it) {
                 is Envelope.Loading -> {
                     mBinding.progress.visibility = View.VISIBLE
+                    mBinding.message.visibility = View.GONE
                 }
 
                 is Envelope.Error -> {
+                    mBinding.message.visibility = View.GONE
                     mBinding.progress.visibility = View.INVISIBLE
                     Toast.makeText(requireContext(), it.message, Toast.LENGTH_SHORT).show()
                 }
 
                 is Envelope.Success -> {
-                    mBinding.progress.visibility = View.INVISIBLE
+                    mBinding.progress.visibility = View.GONE
                     userAdapter.submitList(it.data)
+                    if (it.data.isEmpty()) {
+                        mBinding.message.visibility = View.VISIBLE
+                        mBinding.message.text =
+                            requireContext().resources.getString(R.string.noUserFound)
+                    } else {
+                        mBinding.message.visibility = View.GONE
+                    }
+
                 }
             }
         }

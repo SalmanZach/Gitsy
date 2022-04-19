@@ -83,6 +83,11 @@ class GitsyRepositoryImp(private val remote: GitsyApis, private val userDao: Use
     }
 
 
+    /**
+     *  This method can be used to mark a user as favourite and add that record into another
+     *  table to keep it as favourite.
+     */
+
     override fun addToFavourite(username: String, isFavourite: Boolean) {
         TODO("Can be added as favourite for a user by username")
     }
